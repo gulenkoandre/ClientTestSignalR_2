@@ -1,5 +1,6 @@
 ﻿using ClientTestSignalR_2.ViewModels;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.DependencyInjection;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -22,7 +23,7 @@ namespace ClientTestSignalR_2
         {
             InitializeComponent();
 
-            DataContext = new VM();
+            DataContext = App.Current.Services.GetService<VM>();
         }
 
     }

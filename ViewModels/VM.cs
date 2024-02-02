@@ -1,6 +1,8 @@
 ﻿using ClientTestSignalR_2.Commands;
 using ClientTestSignalR_2.Enums;
+using ClientTestSignalR_2.Services.Interfaces;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -18,16 +20,21 @@ namespace ClientTestSignalR_2.ViewModels
         #region == Constructor ====================================================================================================
         public VM()
         {
-            _dispatcher = Dispatcher.CurrentDispatcher;
+            //_dispatcher = Dispatcher.CurrentDispatcher;
+
+            connectionServer = App.Current.Services.GetService<IConnectionService>();
         }
 
         #endregion == Constructor ==
 
         #region == Fields ====================================================================================================
 
-        HubConnection? connection; // объявляем подключение для работы с сервером (хабом)
+        /// <summary>
+        /// сервис для работы с сервером получаем в конструкторе класса
+        /// </summary>
+        IConnectionService? connectionServer;
 
-        Dispatcher _dispatcher; // для работы с элементами WPF в главном потоке
+        //Dispatcher _dispatcher; // для работы с элементами WPF в главном потоке
 
         #endregion == Fields ==
 
@@ -76,19 +83,7 @@ namespace ClientTestSignalR_2.ViewModels
             }
         }
         bool _strConvertersEnable = false;
-
-        /*public bool ButtonSendEnable
-        {
-            get => _buttonSendEnable;
-
-            set
-            {
-                _buttonSendEnable = value;
-                OnPropertyChanged(nameof(ButtonSendEnable));
-            }
-        }
-        bool _buttonSendEnable = false;*/
-
+        
         public bool ButtonConnectEnable
         {
             get => _buttonConnectEnable;
@@ -173,22 +168,7 @@ namespace ClientTestSignalR_2.ViewModels
             }
         }
         string _outputMessage = "Test";
-
-        /// <summary>
-        /// входящее сообщение
-        /// </summary>
-        public string InputMessage
-        {
-            get => _inputMessage;
-
-            set
-            {
-                _inputMessage = value;
-                OnPropertyChanged(nameof(InputMessage));
-            }
-        }
-        string _inputMessage = "";
-
+        
         // <summary>
         /// история сообщений
         /// </summary>
@@ -236,43 +216,49 @@ namespace ClientTestSignalR_2.ViewModels
 
         }
 
-        /*DelegateCommand? commandSendMessage;
-        public ICommand CommandSendMessage
+        /// <summary>
+        /// по кнопке Очистить - очистка чата
+        /// </summary>
+        DelegateCommand? сommandClear;
+        public ICommand CommandClear
         {
             get
             {
-                if (commandSendMessage == null)
+                if (сommandClear == null)
                 {
-                    commandSendMessage = new DelegateCommand(SendMessageCommand);
+                    сommandClear = new DelegateCommand(Clear);
                 }
-                return commandSendMessage;
+                return сommandClear;
             }
 
-        }*/
+        }
 
         #endregion == Commands ==
 
         #region == Methods for Commands ===================================================================================================
 
-        private async void Connect(object? obj)
+        /// <summary>
+        /// подключение к серверу
+        /// </summary>
+        /// <param name="obj"></param>
+        private void Connect(object? obj)
         {
-            OpenConnectionServer(ServerAddress, RequestPath);
-
             try
             {
-                ButtonConnectEnable = false;
-
-                //подключение к хабу
-                if (connection != null)
+                if (connectionServer != null)
                 {
-                    await connection.StartAsync();
+                    connectionServer.Address = $"{ServerAddress}{RequestPath}";
+
+                    connectionServer.MessageListObj = MessageList;
+
+                    connectionServer.Connect();
                 }
 
-                MessageList.Add("Соединение установлено");
-
-                StrConvertersEnable = true;
+                ButtonConnectEnable = false;                               
 
                 ButtonDisconnectEnable = true;
+
+                StrConvertersEnable = true;
             }
             catch (Exception ex)
             {
@@ -282,23 +268,24 @@ namespace ClientTestSignalR_2.ViewModels
             }
         }
 
-        private async void Disconnect(object? obj)
+        /// <summary>
+        /// отключение от сервера
+        /// </summary>
+        /// <param name="obj"></param>
+        private void Disconnect(object? obj)
         {
             try
             {
                 ButtonDisconnectEnable = false;
 
-                //подключение к хабу
-                if (connection != null)
+                if (connectionServer != null)
                 {
-                    await connection.StopAsync();
+                    connectionServer.MessageListObj = MessageList;
+
+                    connectionServer.Disconnect();
                 }
 
-                MessageList.Add("Соединение отключено");
-
-                ButtonConnectEnable = true;
-
-                StrConvertersEnable = false;
+                ButtonConnectEnable = true;                
             }
             catch (Exception ex)
             {
@@ -308,56 +295,32 @@ namespace ClientTestSignalR_2.ViewModels
             }
         }
 
-        /*private void SendMessageCommand(object? obj)
+        /// <summary>
+        /// очистка чата
+        /// </summary>
+        /// <param name="obj"></param>
+        private void Clear(object? obj)
         {
-            SendMessage();            
-        }*/
+            MessageList.Clear();
+        }
 
         #endregion == Methods for Commands ==
 
         #region == Methods ===================================================================================================
-
+        
         /// <summary>
-        /// Открыть соединение с сервером
+        /// отправить сообщение серверу
         /// </summary>
-        /// <param name="serverAddress">в формате "https://localhost:7018" </param>
-        /// <param name="requestPath"> путь запроса в формате "/chat" </param>
-        private void OpenConnectionServer(string serverAddress, string requestPath) // serverAddress в формате "https://localhost:7018", путь запроса в формате "/str"
-        {
-            //создание подключения к хабу
-            connection = new HubConnectionBuilder()
-                .WithUrl($"{serverAddress}{requestPath}")
-                .Build();
-
-            // регистрация функции Receive для получения данных
-            connection.On<string, string>("Receive", (user, message) =>
-            {
-                _dispatcher.Invoke(() =>
-                {
-                    string newMessage = $"{user}: {message}";
-                    MessageList.Add(newMessage);
-                    if (user != Nickname)
-                    {
-                        OutputMessage = MessageConvert(message);
-                        SendMessage();
-                    }
-                });
-            });
-        }
-
-        /// <summary>
-        /// отправить сообщение
-        /// </summary>
-        private async void SendMessage()
+        /// <param name="obj"></param>
+        private void SendMessage()
         {
             try
             {
-                //отправка сообщения
-                if (connection != null)
+                //отправка сообщения на сервер
+                if (connectionServer != null)
                 {
-                    await connection.InvokeAsync("Send", Nickname, OutputMessage);
+                    connectionServer.SendMessage(Nickname, OutputMessage);
                 }
-
             }
             catch (Exception ex)
             {
