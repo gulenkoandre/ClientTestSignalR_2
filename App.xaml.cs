@@ -46,6 +46,8 @@ namespace ClientTestSignalR_2
 
             services.AddSingleton<IConnectionService, ConnectionServer>(); //для получения - IConnectionService? сonnectionService = App.Current.Services.GetService<IConnectionService>();
 
+            services.AddSingleton<IMessageConverter, MessageConverter>(); //конвертирование строк 
+
             //ViewModels
             services.AddTransient<VM>();
 

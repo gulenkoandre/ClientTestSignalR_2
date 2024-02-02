@@ -1,5 +1,6 @@
 ﻿using ClientTestSignalR_2.Commands;
 using ClientTestSignalR_2.Enums;
+using ClientTestSignalR_2.Services;
 using ClientTestSignalR_2.Services.Interfaces;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,6 +24,8 @@ namespace ClientTestSignalR_2.ViewModels
             //_dispatcher = Dispatcher.CurrentDispatcher;
 
             connectionServer = App.Current.Services.GetService<IConnectionService>();
+
+            messageConverter = App.Current.Services.GetService<IMessageConverter>();
         }
 
         #endregion == Constructor ==
@@ -33,6 +36,8 @@ namespace ClientTestSignalR_2.ViewModels
         /// сервис для работы с сервером получаем в конструкторе класса
         /// </summary>
         IConnectionService? connectionServer;
+
+        IMessageConverter? messageConverter;
 
         //Dispatcher _dispatcher; // для работы с элементами WPF в главном потоке
 
@@ -65,7 +70,10 @@ namespace ClientTestSignalR_2.ViewModels
                 
                 OnPropertyChanged(nameof(StrConverter));
 
-                OutputMessage = MessageConvert(OutputMessage);
+                if (messageConverter != null)
+                {
+                    OutputMessage = messageConverter.MessageConvert(StrConverter, OutputMessage);
+                }
                 
                 SendMessage();
             }
@@ -251,6 +259,8 @@ namespace ClientTestSignalR_2.ViewModels
 
                     connectionServer.MessageListObj = MessageList;
 
+                    connectionServer.Nickname = Nickname;
+
                     connectionServer.Connect();
                 }
 
@@ -330,7 +340,7 @@ namespace ClientTestSignalR_2.ViewModels
             }
         }
 
-        private string MessageConvert(string message)
+        /*private string MessageConvert(string message)
         {
             switch (StrConverter)
             {
@@ -357,14 +367,14 @@ namespace ClientTestSignalR_2.ViewModels
                     }                    
             }
                        
-        }
+        }*/
 
         /// <summary>
         /// получение случайной строки той же длины, что и отправлена от клиента Chat
         /// </summary>
         /// <param name="count"></param>
         /// <returns></returns>
-        public string RandomString(string message)
+        /*public string RandomString(string message)
         {
             Random rnd;
 
@@ -383,7 +393,7 @@ namespace ClientTestSignalR_2.ViewModels
             }
             
             return new string(charArray);
-        }
+        }*/
 
         #endregion == Methods ==
 

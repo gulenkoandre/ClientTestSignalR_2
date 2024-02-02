@@ -1,4 +1,5 @@
-﻿using ClientTestSignalR_2.Services.Interfaces;
+﻿using ClientTestSignalR_2.Enums;
+using ClientTestSignalR_2.Services.Interfaces;
 using Microsoft.AspNetCore.SignalR.Client;
 using System;
 using System.Collections.Generic;
@@ -17,11 +18,15 @@ namespace ClientTestSignalR_2.Services
     {
         private readonly IWriteMessageService writeMessageService;
 
+        private readonly IMessageConverter messageConverter;
+
         #region == Constructor ==========================================================================================
 
-        public ConnectionServer(IWriteMessageService writeMessageService)
+        public ConnectionServer(IWriteMessageService writeMessageService, IMessageConverter messageConverter)
         {
             this.writeMessageService = writeMessageService;
+
+            this.messageConverter = messageConverter;
             /*if (Program.host != null)
             {
                 writeMessageListService = Program.host.Services.GetService<WriteMessageListService>(); //сервис для добавления сообщений в общий список
@@ -62,6 +67,16 @@ namespace ClientTestSignalR_2.Services
             get; set;
         }
 
+        public string? Nickname
+        {
+            get; set;
+        }
+
+        public StrConvertTypes StrConvertType
+        {
+            get; set;
+        }
+
         /// <summary>
         /// установление соединения
         /// </summary>
@@ -79,14 +94,26 @@ namespace ClientTestSignalR_2.Services
                 {
                     Dispatcher.CurrentDispatcher.Invoke(() =>
                     {
-                        string? newMessage = $"{user}: {message}";
+                    /*    string? newMessage = $"{user}: {message}";
 
                         if (writeMessageService != null) //добавлние сообщения в чат
                         {
                             writeMessageService?.WriteMessage(MessageListObj, newMessage);
                         }
+                    });*/
+                        string newMessage = $"{user}: {message}";
+                        if (writeMessageService != null) //добавлние сообщения в чат
+                        {
+                            writeMessageService?.WriteMessage(MessageListObj, newMessage);
+                        }
+
+                        if (user != Nickname && Nickname!=null)
+                        {
+                            string outputMessage = messageConverter.MessageConvert(StrConvertType, message);
+                            SendMessage(Nickname, outputMessage);
+                        }
                     });
-                });
+            });
 
                 if (connection != null)
                 {

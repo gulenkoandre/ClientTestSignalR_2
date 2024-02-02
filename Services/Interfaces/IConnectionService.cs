@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ClientTestSignalR_2.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,16 @@ namespace ClientTestSignalR_2.Services.Interfaces
         /// объект лога сообщений, передаваемый через object 
         /// </summary>
         public object? MessageListObj
+        {
+            get; set;
+        }
+
+        public string? Nickname
+        {
+            get; set;
+        }
+
+        public StrConvertTypes StrConvertType
         {
             get; set;
         }
