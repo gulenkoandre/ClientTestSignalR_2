@@ -1,0 +1,55 @@
+﻿<Window x:Class="ClientTestSignalR_2.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ClientTestSignalR_2"
+        mc:Ignorable="d"
+        Title="AntiChat" Height="515" Width="800" >
+    <Grid>
+        <StackPanel Margin="10">
+            
+            <Label Content="Адрес сервера (в формате https://localhost:7018)"/>
+            <TextBox Text="{Binding ServerAddress}" />
+            
+            <Label Content="Путь запроса (в формате /str)"/>
+            <TextBox Text="{Binding RequestPath}" /> 
+            
+            <Button Content="Подключиться" 
+                    Command="{Binding CommandConnect}"
+                    IsEnabled="{Binding ButtonConnectEnable}"
+                     />
+            
+            <Label Content="Ваш nickname:"/>
+            <TextBox Text="{Binding Nickname}" />
+            
+            <!--<Label Content="Введите сообщение"/>
+            <TextBox Text="{Binding OutputMessage}" />
+            
+            <Button Content="Отправить" 
+                    Command="{Binding CommandSendMessage}"
+                    IsEnabled="{Binding ButtonSendEnable}" />-->
+
+            <ComboBox ItemsSource="{Binding StrConverters}"
+                      SelectedItem="{Binding StrConverter}" 
+                      IsEnabled="{Binding StrConvertersEnable}"
+                      VerticalContentAlignment="Center"
+                      />
+
+
+
+            <ListBox ItemsSource="{Binding MessageList}"
+                     Height="220"
+                     ScrollViewer.VerticalScrollBarVisibility="Visible"/>
+            
+            <Button Content="Стоп" 
+                    Command="{Binding CommandDisconnect}"
+                    IsEnabled="{Binding ButtonDisconnectEnable}"
+                     />
+
+
+
+        </StackPanel>
+
+    </Grid>
+</Window>
