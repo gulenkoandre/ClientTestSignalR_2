@@ -285,7 +285,9 @@ namespace ClientTestSignalR_2.ViewModels
                     connectionServer.Disconnect();
                 }
 
-                ButtonConnectEnable = true;                
+                ButtonConnectEnable = true;
+
+                StrConvertersEnable = false;
             }
             catch (Exception ex)
             {
