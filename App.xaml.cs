@@ -4,10 +4,7 @@ using ClientTestSignalR_2.Services;
 using ClientTestSignalR_2.Services.Interfaces;
 using ClientTestSignalR_2.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
-using System.Configuration;
-using System.Data;
 using System.Windows;
-using System.Xaml;
 
 namespace ClientTestSignalR_2
 {
