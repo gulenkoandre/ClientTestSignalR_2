@@ -23,9 +23,7 @@ namespace ClientTestSignalR_2
         {
             Services = ConfigureServices();
 
-            mainWindow = App.Current.Services.GetService<MainWindow>();
-
-            //this.InitializeComponent();
+            mainWindow = App.Current.Services.GetService<MainWindow>();           
         }
         
         public new static App Current => (App)Application.Current;
@@ -38,9 +36,7 @@ namespace ClientTestSignalR_2
 
             
             services.AddSingleton<MainWindow>(); //например для доступа из других мест программы: MainWindow? mainWindow = App.Current.Services.GetService<MainWindow>();
-
-            //services.AddSingleton<App>();
-
+            
             //Services
             services.AddSingleton<IWriteMessageService, WriteMessageListService>();
 
@@ -52,8 +48,6 @@ namespace ClientTestSignalR_2
             services.AddTransient<VM>();
 
             return services.BuildServiceProvider();
-
-
         }
 
         //OnStartup - метод который запускается при старте приложения
@@ -66,7 +60,5 @@ namespace ClientTestSignalR_2
             
             base.OnStartup(e);
         }
-    }
-
-    
+    }    
 }

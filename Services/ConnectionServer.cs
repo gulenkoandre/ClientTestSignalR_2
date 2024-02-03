@@ -1,11 +1,6 @@
 ﻿using ClientTestSignalR_2.Enums;
 using ClientTestSignalR_2.Services.Interfaces;
 using Microsoft.AspNetCore.SignalR.Client;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -26,31 +21,20 @@ namespace ClientTestSignalR_2.Services
         {
             this.writeMessageService = writeMessageService;
 
-            this.messageConverter = messageConverter;
-            /*if (Program.host != null)
-            {
-                writeMessageListService = Program.host.Services.GetService<WriteMessageListService>(); //сервис для добавления сообщений в общий список
-            }
-            WriteMessageService = writeMessageService;*/
+            this.messageConverter = messageConverter;            
         }
 
         #endregion == Constructor ==
 
         #region == Fields ==========================================================================================
-
-        //private readonly IConnectionService? _connectionService;
-
         /// <summary>
         /// текущее соединение
         /// </summary>
         HubConnection? connection;
-
-        /// <summary>
-        /// сервис добавления сообщения в чат
-        /// </summary>
-        //IWriteMessageService? writeMessageListService = null;
-
+        
         #endregion == Fields ==
+
+        #region == Properties ==========================================================================================
         /// <summary>
         /// адрес назначения соединения
         /// </summary>
@@ -77,6 +61,9 @@ namespace ClientTestSignalR_2.Services
             get; set;
         }
 
+        #endregion == Properties ==
+
+        #region == Methods ==========================================================================================
         /// <summary>
         /// установление соединения
         /// </summary>
@@ -93,14 +80,7 @@ namespace ClientTestSignalR_2.Services
                 connection?.On<string, string>("Receive", (user, message) =>
                 {
                     Dispatcher.CurrentDispatcher.Invoke(() =>
-                    {
-                    /*    string? newMessage = $"{user}: {message}";
-
-                        if (writeMessageService != null) //добавлние сообщения в чат
-                        {
-                            writeMessageService?.WriteMessage(MessageListObj, newMessage);
-                        }
-                    });*/
+                    {                   
                         string newMessage = $"{user}: {message}";
                         if (writeMessageService != null) //добавлние сообщения в чат
                         {
@@ -124,7 +104,7 @@ namespace ClientTestSignalR_2.Services
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show($"Ошибка соединения с сервером ({ex.Message}). Нажмите Стоп и проверьте параметры подключения и доступность сервера");
             }
         }
 
@@ -158,9 +138,11 @@ namespace ClientTestSignalR_2.Services
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show($"Ошибка отправки данных на сервер ({ex.Message}). Нажмите Стоп и проверьте параметры подключения и доступность сервера");
             }
 
         }
+
+        #endregion == Methods ==
     }
 }

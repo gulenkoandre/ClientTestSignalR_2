@@ -4,7 +4,6 @@
              xmlns:local="clr-namespace:ClientTestSignalR_2"
              >
     <!--StartupUri="MainWindow.xaml"-->
-
     <Application.Resources>
          
     </Application.Resources>

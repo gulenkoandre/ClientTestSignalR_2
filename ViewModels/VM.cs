@@ -1,18 +1,10 @@
 ﻿using ClientTestSignalR_2.Commands;
 using ClientTestSignalR_2.Enums;
-using ClientTestSignalR_2.Services;
 using ClientTestSignalR_2.Services.Interfaces;
-using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Threading;
 
 namespace ClientTestSignalR_2.ViewModels
 {
@@ -21,13 +13,19 @@ namespace ClientTestSignalR_2.ViewModels
         #region == Constructor ====================================================================================================
         public VM()
         {
-            //_dispatcher = Dispatcher.CurrentDispatcher;
-
             connectionServer = App.Current.Services.GetService<IConnectionService>();
 
             messageConverter = App.Current.Services.GetService<IMessageConverter>();
-        }
 
+            if (connectionServer != null)
+            {
+                connectionServer.Address = $"{ServerAddress}{RequestPath}";
+
+                connectionServer.Nickname = Nickname;
+
+                connectionServer.MessageListObj = MessageList;
+            }
+        }
         #endregion == Constructor ==
 
         #region == Fields ====================================================================================================
@@ -37,10 +35,11 @@ namespace ClientTestSignalR_2.ViewModels
         /// </summary>
         IConnectionService? connectionServer;
 
+        /// <summary>
+        /// сервис конвертации сообщений получаем в конструкторе класса
+        /// </summary>
         IMessageConverter? messageConverter;
-
-        //Dispatcher _dispatcher; // для работы с элементами WPF в главном потоке
-
+        
         #endregion == Fields ==
 
         #region == Properties ================================================================================================
@@ -127,6 +126,10 @@ namespace ClientTestSignalR_2.ViewModels
             {
                 _requestPath = value;
                 OnPropertyChanged(nameof(RequestPath));
+                if (connectionServer != null)
+                {
+                    connectionServer.Address = $"{ServerAddress}{RequestPath}";
+                }
             }
         }
         string _requestPath = "/str";
@@ -142,6 +145,10 @@ namespace ClientTestSignalR_2.ViewModels
             {
                 _serverAddress = value;
                 OnPropertyChanged(nameof(ServerAddress));
+                if (connectionServer != null)
+                {
+                    connectionServer.Address = $"{ServerAddress}{RequestPath}";
+                }
             }
         }
         string _serverAddress = "https://localhost:7018";
@@ -158,6 +165,10 @@ namespace ClientTestSignalR_2.ViewModels
             {
                 _nickname = value;
                 OnPropertyChanged(nameof(Nickname));
+                if (connectionServer != null)
+                {
+                    connectionServer.Nickname = Nickname;
+                }
             }
         }
         string _nickname = "AntiChat";
@@ -188,6 +199,11 @@ namespace ClientTestSignalR_2.ViewModels
             {
                 _messageList = value;
                 OnPropertyChanged(nameof(MessageList));
+                if (connectionServer != null)
+                {
+                    connectionServer.MessageListObj = MessageList;
+                }
+
             }
         }
         ObservableCollection<string> _messageList = new ObservableCollection<string>();
@@ -250,32 +266,25 @@ namespace ClientTestSignalR_2.ViewModels
         /// </summary>
         /// <param name="obj"></param>
         private void Connect(object? obj)
-        {
-            try
-            {
-                if (connectionServer != null)
-                {
-                    connectionServer.Address = $"{ServerAddress}{RequestPath}";
+        {   
+                
+            if (connectionServer != null)
+                
+            {                    
+                connectionServer.Connect();
 
-                    connectionServer.MessageListObj = MessageList;
+                ButtonConnectEnable = false;
 
-                    connectionServer.Nickname = Nickname;
-
-                    connectionServer.Connect();
-                }
-
-                ButtonConnectEnable = false;                               
 
                 ButtonDisconnectEnable = true;
 
+
                 StrConvertersEnable = true;
             }
-            catch (Exception ex)
+            else
             {
-                ButtonConnectEnable = true;
-
-                MessageBox.Show(ex.Message);
-            }
+                MessageBox.Show("Сервис подключения к серверу не активирован");
+            }                    
         }
 
         /// <summary>
@@ -284,27 +293,21 @@ namespace ClientTestSignalR_2.ViewModels
         /// <param name="obj"></param>
         private void Disconnect(object? obj)
         {
-            try
+                
+            if (connectionServer != null)                
             {
+                connectionServer.Disconnect();
+
                 ButtonDisconnectEnable = false;
 
-                if (connectionServer != null)
-                {
-                    connectionServer.MessageListObj = MessageList;
-
-                    connectionServer.Disconnect();
-                }
-
                 ButtonConnectEnable = true;
-
+                                   
                 StrConvertersEnable = false;
             }
-            catch (Exception ex)
+            else
             {
-                ButtonDisconnectEnable = true;
-
-                MessageBox.Show(ex.Message);
-            }
+                MessageBox.Show("Сервис подключения к серверу не активирован");
+            }          
         }
 
         /// <summary>
@@ -326,75 +329,16 @@ namespace ClientTestSignalR_2.ViewModels
         /// <param name="obj"></param>
         private void SendMessage()
         {
-            try
-            {
-                //отправка сообщения на сервер
-                if (connectionServer != null)
-                {
-                    connectionServer.SendMessage(Nickname, OutputMessage);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
+            //отправка сообщения на сервер                
+            if (connectionServer != null)                
+            {                    
+                connectionServer.SendMessage(Nickname, OutputMessage);
+            }                
+            else                
+            {                    
+                MessageBox.Show("Сервис подключения к серверу не активирован");
+            }            
         }
-
-        /*private string MessageConvert(string message)
-        {
-            switch (StrConverter)
-            {
-                case StrConvertTypes.Backwards: //переворот строки
-                    {
-                        char[] charArray = message.ToCharArray();
-                        Array.Reverse(charArray);
-                        return new string(charArray);
-                    }                    
-
-                case StrConvertTypes.Upper: //в верхний регистр
-                    {
-                        return message.ToUpper();
-                    }                    
-
-                case StrConvertTypes.Lower: //в нижний регистр
-                    {
-                        return message.ToLower(); 
-                    }
-                
-                default: //case StrConvertTypes.Random - формирование случайной строки
-                    {
-                        return RandomString (message);
-                    }                    
-            }
-                       
-        }*/
-
-        /// <summary>
-        /// получение случайной строки той же длины, что и отправлена от клиента Chat
-        /// </summary>
-        /// <param name="count"></param>
-        /// <returns></returns>
-        /*public string RandomString(string message)
-        {
-            Random rnd;
-
-            int randomNum;
-
-            char[] charArray = message.ToCharArray();
-            
-            for (int i = 0; i < message.Count(); i++)
-            {
-                rnd = new Random();
-
-                randomNum = rnd.Next(1, 107);
-
-                charArray[i] = (char)randomNum;
-
-            }
-            
-            return new string(charArray);
-        }*/
-
         #endregion == Methods ==
 
     }
