@@ -1,12 +1,7 @@
 ﻿using ClientTestSignalR_2.Commands;
 using ClientTestSignalR_2.Enums;
 using Microsoft.AspNetCore.SignalR.Client;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -76,18 +71,6 @@ namespace ClientTestSignalR_2.ViewModels
             }
         }
         bool _strConvertersEnable = false;
-
-        /*public bool ButtonSendEnable
-        {
-            get => _buttonSendEnable;
-
-            set
-            {
-                _buttonSendEnable = value;
-                OnPropertyChanged(nameof(ButtonSendEnable));
-            }
-        }
-        bool _buttonSendEnable = false;*/
 
         public bool ButtonConnectEnable
         {
@@ -168,8 +151,7 @@ namespace ClientTestSignalR_2.ViewModels
 
             set
             {
-                _outputMessage = value;
-                //OnPropertyChanged(nameof(OutputMessage));
+                _outputMessage = value;               
             }
         }
         string _outputMessage = "Test";
@@ -234,21 +216,7 @@ namespace ClientTestSignalR_2.ViewModels
                 return commandDisconnect;
             }
 
-        }
-
-        /*DelegateCommand? commandSendMessage;
-        public ICommand CommandSendMessage
-        {
-            get
-            {
-                if (commandSendMessage == null)
-                {
-                    commandSendMessage = new DelegateCommand(SendMessageCommand);
-                }
-                return commandSendMessage;
-            }
-
-        }*/
+        }      
 
         #endregion == Commands ==
 
@@ -306,12 +274,7 @@ namespace ClientTestSignalR_2.ViewModels
 
                 MessageBox.Show(ex.Message);
             }
-        }
-
-        /*private void SendMessageCommand(object? obj)
-        {
-            SendMessage();            
-        }*/
+        }        
 
         #endregion == Methods for Commands ==
 

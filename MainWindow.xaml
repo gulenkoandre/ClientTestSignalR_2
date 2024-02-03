@@ -21,22 +21,13 @@
                      />
             
             <Label Content="Ваш nickname:"/>
-            <TextBox Text="{Binding Nickname}" />
-            
-            <!--<Label Content="Введите сообщение"/>
-            <TextBox Text="{Binding OutputMessage}" />
-            
-            <Button Content="Отправить" 
-                    Command="{Binding CommandSendMessage}"
-                    IsEnabled="{Binding ButtonSendEnable}" />-->
+            <TextBox Text="{Binding Nickname}" />  
 
             <ComboBox ItemsSource="{Binding StrConverters}"
                       SelectedItem="{Binding StrConverter}" 
                       IsEnabled="{Binding StrConvertersEnable}"
                       VerticalContentAlignment="Center"
                       />
-
-
 
             <ListBox ItemsSource="{Binding MessageList}"
                      Height="220"
@@ -46,9 +37,7 @@
                     Command="{Binding CommandDisconnect}"
                     IsEnabled="{Binding ButtonDisconnectEnable}"
                      />
-
-
-
+            
         </StackPanel>
 
     </Grid>

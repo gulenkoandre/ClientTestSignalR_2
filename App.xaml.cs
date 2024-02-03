@@ -1,7 +1,5 @@
 ﻿// Ignore Spelling: App
 
-using System.Configuration;
-using System.Data;
 using System.Windows;
 
 namespace ClientTestSignalR_2
