@@ -17,6 +17,7 @@ namespace ClientTestSignalR_2.ViewModels
 
             messageConverter = App.Current.Services.GetService<IMessageConverter>();
 
+            // передача начальных данных в сервисы через свойства
             if (connectionServer != null)
             {
                 connectionServer.Address = $"{ServerAddress}{RequestPath}";
@@ -24,6 +25,13 @@ namespace ClientTestSignalR_2.ViewModels
                 connectionServer.Nickname = Nickname;
 
                 connectionServer.MessageListObj = MessageList;
+
+                connectionServer.StrConvertType = StrConverter;
+            }
+
+            if (messageConverter != null)
+            {
+                OutputMessage = messageConverter.MessageConvert(StrConverter, OutputMessage);
             }
         }
         #endregion == Constructor ==
@@ -69,12 +77,10 @@ namespace ClientTestSignalR_2.ViewModels
                 
                 OnPropertyChanged(nameof(StrConverter));
 
-                if (messageConverter != null)
+                if (connectionServer != null)
                 {
-                    OutputMessage = messageConverter.MessageConvert(StrConverter, OutputMessage);
-                }
-                
-                SendMessage();
+                    connectionServer.StrConvertType = StrConverter;
+                }               
             }
         }
         StrConvertTypes _strConverter = StrConvertTypes.Random;
@@ -182,8 +188,7 @@ namespace ClientTestSignalR_2.ViewModels
 
             set
             {
-                _outputMessage = value;
-                //OnPropertyChanged(nameof(OutputMessage));
+                _outputMessage = value;                
             }
         }
         string _outputMessage = "Test";
