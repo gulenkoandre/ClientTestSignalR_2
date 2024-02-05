@@ -11,28 +11,21 @@ namespace ClientTestSignalR_2.ViewModels
     public class VM : BaseVM
     {
         #region == Constructor ====================================================================================================
-        public VM()
+        public VM(IConnectionService connectionService, IMessageConverter messageConverter)
         {
-            connectionServer = App.Current.Services.GetService<IConnectionService>();
+            connectionServer = connectionService; 
 
-            messageConverter = App.Current.Services.GetService<IMessageConverter>();
+            this.messageConverter = messageConverter; 
+                        
+            connectionServer.Address = $"{ServerAddress}{RequestPath}";
 
-            // передача начальных данных в сервисы через свойства
-            if (connectionServer != null)
-            {
-                connectionServer.Address = $"{ServerAddress}{RequestPath}";
+            connectionServer.Nickname = Nickname;
 
-                connectionServer.Nickname = Nickname;
+            connectionServer.MessageListObj = MessageList;
 
-                connectionServer.MessageListObj = MessageList;
+            connectionServer.StrConvertType = StrConverter;
 
-                connectionServer.StrConvertType = StrConverter;
-            }
-
-            if (messageConverter != null)
-            {
-                OutputMessage = messageConverter.MessageConvert(StrConverter, OutputMessage);
-            }
+            OutputMessage = messageConverter.MessageConvert(StrConverter, OutputMessage);            
         }
         #endregion == Constructor ==
 
@@ -41,12 +34,12 @@ namespace ClientTestSignalR_2.ViewModels
         /// <summary>
         /// сервис для работы с сервером получаем в конструкторе класса
         /// </summary>
-        IConnectionService? connectionServer;
+        private readonly IConnectionService connectionServer;
 
         /// <summary>
         /// сервис конвертации сообщений получаем в конструкторе класса
         /// </summary>
-        IMessageConverter? messageConverter;
+        private readonly IMessageConverter messageConverter;
         
         #endregion == Fields ==
 
